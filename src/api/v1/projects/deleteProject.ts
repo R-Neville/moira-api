@@ -3,16 +3,19 @@ import { Project } from "../../../sequelize/models/project.model";
 import { respond, IMoiraResponse } from "../../../utils";
 import MoiraError from "../../../exceptions/MoiraError";
 import { HttpStatus } from "../../../HttpStatus";
+import { processToken } from "../token-utils";
 
 export default async function deleteProject(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
+  const userInfo = processToken(req, next);
   const { id } = req.params;
+
   try {
     const project = await Project.findOne({ where: { id } });
-    if (project) {
+    if (project && project.creatorId === userInfo.id) {
       await project.destroy();
       respond(res, {
         success: true,
@@ -20,11 +23,13 @@ export default async function deleteProject(
         data: project,
       } as IMoiraResponse);
     } else {
-      next(new MoiraError({
-        title: "Project Not Found",
-        detail: `Could not find the project with id ${id}`,
-        httpStatus: HttpStatus.NOT_FOUND,
-      }));
+      next(
+        new MoiraError({
+          title: "Project Not Found",
+          detail: `Could not find the project with id ${id}`,
+          httpStatus: HttpStatus.NOT_FOUND,
+        })
+      );
     }
   } catch (e) {
     next(
