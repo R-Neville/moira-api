@@ -7,10 +7,13 @@ import createNewProject from "./createNewProject";
 import deleteProject from "./deleteProject";
 import updateProjectSchema from "../validation-schemas/updateProject.schema";
 import updateProject from "./updateProject";
+import getProject from "./getProject";
 
 const projectsRouter = express.Router();
 
 projectsRouter.get("/", authorizeRequest(), getAllProjects);
+
+projectsRouter.get("/:id", authorizeRequest(), getProject);
 
 projectsRouter.post(
   "/",
