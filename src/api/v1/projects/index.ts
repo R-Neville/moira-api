@@ -4,6 +4,7 @@ import makeSchemaValidator from "../../../middleware/makeSchemaValidator";
 import newProjectSchema from "../validation-schemas/newProject.schema";
 import getAllProjects from "./getAllProjects";
 import createNewProject from "./createNewProject";
+import deleteProject from "./deleteProject";
 
 const projectsRouter = express.Router();
 
@@ -15,5 +16,7 @@ projectsRouter.post(
   makeSchemaValidator(newProjectSchema),
   createNewProject
 );
+
+projectsRouter.delete("/:id", authorizeRequest(), deleteProject);
 
 export default projectsRouter;
