@@ -1,16 +1,16 @@
-import express, { Application, Request, Response } from "express";
+import "dotenv/config";
+import app, { port } from "./app";
 import logger from "./logger";
+import sequelize, { dbConnect } from "./sequelize";
 
-const app: Application = express();
-const port = process.env.PORT || 3000;
+(async () => {
+  await dbConnect(sequelize);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-try {
-  app.listen(port, (): void => {
-    logger.info(`Server is running at http://localhost:${port}`);
-  });
-} catch (error) {
-  logger.error((error as Error).message)
-}
+  try {
+    app.listen(port, (): void => {
+      logger.info(`Server is running at http://localhost:${port}`);
+    });
+  } catch (error) {
+    logger.error((error as Error).message);
+  }
+})();
