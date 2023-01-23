@@ -8,6 +8,7 @@ import {
   ForeignKey,
 } from "sequelize";
 import { Project } from "./project.model";
+import { User } from "./user.model";
 
 export class Task extends Model<
   InferAttributes<Task>,
@@ -16,6 +17,7 @@ export class Task extends Model<
   declare id: CreationOptional<number>;
   declare projectId: ForeignKey<Project["id"]>;
   declare brief: string;
+  declare assignedTo: ForeignKey<User["id"]>;
   declare deadline: Date;
   declare description: string;
   declare createdAt: CreationOptional<Date>;

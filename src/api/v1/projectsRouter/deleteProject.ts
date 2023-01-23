@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { Project } from "../../../sequelize/models/project.model";
 import { respond, IMoiraResponse } from "../../../utils";
-import MoiraError from "../../../exceptions/MoiraError";
 import { HttpStatus } from "../../../HttpStatus";
 import { processToken } from "../token-utils";
+import internalServerError from "../../../exceptions/interalServerError";
+import resourceNotFound from "../../../exceptions/resourceNotFound";
 
 export default async function deleteProject(
   req: Request,
@@ -23,21 +24,9 @@ export default async function deleteProject(
         data: project,
       } as IMoiraResponse);
     } else {
-      next(
-        new MoiraError({
-          title: "Project Not Found",
-          detail: `Could not find the project with id ${id}`,
-          httpStatus: HttpStatus.NOT_FOUND,
-        })
-      );
+      next(resourceNotFound("Project", id));
     }
   } catch (e) {
-    next(
-      new MoiraError({
-        title: "Internal Server Error",
-        detail: "Sorry - something went wrong on our end",
-        httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
-      })
-    );
+    next(internalServerError);
   }
 }

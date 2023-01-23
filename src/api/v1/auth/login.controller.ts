@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
-import { User } from "../../sequelize/models/user.model";
-import { respond, IMoiraResponse } from "../../utils";
-import MoiraError from "../../exceptions/MoiraError";
-import { HttpStatus } from "../../HttpStatus";
+import { User } from "../../../sequelize/models/user.model";
+import { respond, IMoiraResponse } from "../../../utils";
+import { HttpStatus } from "../../../HttpStatus";
+import internalServerError from "../../../exceptions/interalServerError";
 
 export default async function loginController(
   req: Request,
@@ -39,22 +39,16 @@ export default async function loginController(
         } as IMoiraResponse);
       }
     } else {
-      next(
-        new MoiraError({
-          title: "Invalid login credentials",
+      return respond(res, {
+        success: false,
+        status: HttpStatus.OK,
+        error: {
+          title: "Invalid Login Credentials",
           detail: "Incorrect username or password",
-          httpStatus: HttpStatus.BAD_REQUEST,
-        })
-      );
+        },
+      } as IMoiraResponse);
     }
   } catch (e) {
-    const error = e as Error;
-    next(
-      new MoiraError({
-        title: error.name,
-        detail: error.message,
-        httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
-      })
-    );
+    next(internalServerError);
   }
 }

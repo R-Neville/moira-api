@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { processToken } from "../token-utils";
 import { Project } from "../../../sequelize/models/project.model";
 import { respond, IMoiraResponse } from "../../../utils";
-import MoiraError from "../../../exceptions/MoiraError";
 import { HttpStatus } from "../../../HttpStatus";
+import internalServerError from "../../../exceptions/interalServerError";
+import resourceNotFound from "../../../exceptions/resourceNotFound";
 
-export default async function getProject(
+export default async function updateProject(
   req: Request,
   res: Response,
   next: NextFunction
@@ -17,27 +18,16 @@ export default async function getProject(
     const project = await Project.findOne({ where: { id } });
 
     if (project && project.creatorId === userInfo.id) {
+      const updatedProject = await project.update(req.body);
       respond(res, {
         success: true,
         status: HttpStatus.OK,
-        data: project,
+        data: updatedProject,
       } as IMoiraResponse);
     } else {
-      next(
-        new MoiraError({
-          title: "Project Not Found",
-          detail: `Project not found with id ${id}`,
-          httpStatus: HttpStatus.NOT_FOUND,
-        })
-      );
+      next(resourceNotFound("Project", id));
     }
   } catch (e) {
-    next(
-      new MoiraError({
-        title: "Internal Server Error",
-        detail: "Sorry - something went wrong on our end",
-        httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
-      })
-    );
+    next(internalServerError);
   }
 }
