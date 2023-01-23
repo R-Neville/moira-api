@@ -9,7 +9,8 @@ import {
 import { genSalt, hash } from "bcryptjs";
 
 export const USERNAME_REGEX = /^[a-z0-9_]{2,64}$/;
-export const PASSWORD_REGEX = /^(?=.*[A-Z]+)(?=.*[a-z]+)(?=.*[0-9]+)(?=.*[_\W]+).{8,}$/;
+export const PASSWORD_REGEX =
+  /^(?=.*[A-Z]+)(?=.*[a-z]+)(?=.*[0-9]+)(?=.*[_\W]+).{8,}$/;
 
 export class User extends Model<
   InferAttributes<User>,
@@ -63,6 +64,10 @@ export default function (sequelize: Sequelize) {
       tableName: "users",
       hooks: {
         beforeCreate: async (user: User) => {
+          const salt = await genSalt(10);
+          user.password = await hash(user.password, salt);
+        },
+        beforeUpdate: async (user: User) => {
           const salt = await genSalt(10);
           user.password = await hash(user.password, salt);
         },
